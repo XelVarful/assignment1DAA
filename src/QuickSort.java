@@ -1,57 +1,52 @@
+import java.util.Arrays;
 import java.util.Random;
 
 public class QuickSort {
 
-    // Главная функция сортировки
+    // основная функция сортировки
     public static void quickSort(int[] arr) {
+        if (arr == null || arr.length <= 1) return;
         quickSort(arr, 0, arr.length - 1);
     }
 
-    // Рекурсивный алгоритм
+    // рекурсивная часть
     private static void quickSort(int[] arr, int left, int right) {
-        while (left < right) {
-            int pivotIndex = partition(arr, left, right);
+        if (left >= right) return;
 
-            // 🔁 Сначала рекурсия на меньшей части (для глубины O(log n))
-            if (pivotIndex - left < right - pivotIndex) {
-                quickSort(arr, left, pivotIndex - 1);
-                left = pivotIndex + 1;
-            } else {
-                quickSort(arr, pivotIndex + 1, right);
-                right = pivotIndex - 1;
-            }
-        }
-    }
-
-    // Разделение массива вокруг pivot
-    private static int partition(int[] arr, int left, int right) {
-        int pivotIndex = left + new Random().nextInt(right - left + 1);
+        // выбираем случайный опорный элемент
+        int pivotIndex = new Random().nextInt(right - left + 1) + left;
         int pivot = arr[pivotIndex];
-        swap(arr, pivotIndex, right);
 
-        int storeIndex = left;
-        for (int i = left; i < right; i++) {
-            if (arr[i] < pivot) {
-                swap(arr, i, storeIndex);
-                storeIndex++;
+        // делим массив на части
+        int i = left, j = right;
+        while (i <= j) {
+            while (arr[i] < pivot) i++;
+            while (arr[j] > pivot) j--;
+
+            if (i <= j) {
+                swap(arr, i, j);
+                i++;
+                j--;
             }
         }
-        swap(arr, storeIndex, right);
-        return storeIndex;
+
+        // сортируем части рекурсивно
+        if (left < j) quickSort(arr, left, j);
+        if (i < right) quickSort(arr, i, right);
     }
 
-    //  Обмен элементов
+    // метод обмена элементов
     private static void swap(int[] arr, int i, int j) {
-        int temp = arr[i];
+        int tmp = arr[i];
         arr[i] = arr[j];
-        arr[j] = temp;
+        arr[j] = tmp;
     }
 
-    // Проверим работу
+    // проверка
     public static void main(String[] args) {
-        int[] arr = {9, 4, 6, 2, 7, 1, 5};
-        quickSort(arr);
-        System.out.print("Отсортированный массив: ");
-        for (int n : arr) System.out.print(n + " ");
+        int[] data = {10, 7, 8, 9, 1, 5};
+        System.out.println("До сортировки: " + Arrays.toString(data));
+        quickSort(data);
+        System.out.println("После сортировки: " + Arrays.toString(data));
     }
 }

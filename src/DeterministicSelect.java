@@ -1,73 +1,71 @@
-import java.util.*;
+import java.util.Arrays;
 
 public class DeterministicSelect {
 
-    // Главная функция поиска k-го элемента
+    // находим k-й наименьший элемент (k начинается с 1)
     public static int select(int[] arr, int k) {
-        return select(arr, 0, arr.length - 1, k - 1);
+        if (k < 1 || k > arr.length) throw new IllegalArgumentException("Неверное k");
+        return selectHelper(arr, 0, arr.length - 1, k - 1);
     }
 
-    // Рекурсивный алгоритм Median of Medians
-    private static int select(int[] arr, int left, int right, int k) {
+    private static int selectHelper(int[] arr, int left, int right, int k) {
         if (left == right) return arr[left];
 
-        int pivotIndex = getPivotIndex(arr, left, right);
+        int pivotIndex = choosePivot(arr, left, right);
         pivotIndex = partition(arr, left, right, pivotIndex);
 
         if (k == pivotIndex) {
             return arr[k];
         } else if (k < pivotIndex) {
-            return select(arr, left, pivotIndex - 1, k);
+            return selectHelper(arr, left, pivotIndex - 1, k);
         } else {
-            return select(arr, pivotIndex + 1, right, k);
+            return selectHelper(arr, pivotIndex + 1, right, k);
         }
     }
 
-    // Разделение массива
-    private static int partition(int[] arr, int left, int right, int pivotIndex) {
-        int pivotValue = arr[pivotIndex];
-        swap(arr, pivotIndex, right);
-        int storeIndex = left;
-
-        for (int i = left; i < right; i++) {
-            if (arr[i] < pivotValue) {
-                swap(arr, storeIndex, i);
-                storeIndex++;
-            }
-        }
-        swap(arr, right, storeIndex);
-        return storeIndex;
-    }
-
-    // Поиск медианы медиан (ключевой шаг!)
-    private static int getPivotIndex(int[] arr, int left, int right) {
+    // выбираем медиану медиан как опорный элемент
+    private static int choosePivot(int[] arr, int left, int right) {
         if (right - left < 5) {
             Arrays.sort(arr, left, right + 1);
             return (left + right) / 2;
         }
 
-        int subRight = left;
+        int subIndex = left;
         for (int i = left; i <= right; i += 5) {
             int subEnd = Math.min(i + 4, right);
             Arrays.sort(arr, i, subEnd + 1);
-            int medianIndex = (i + subEnd) / 2;
-            swap(arr, medianIndex, subRight);
-            subRight++;
+            int median = (i + subEnd) / 2;
+            swap(arr, subIndex++, median);
         }
-        return getPivotIndex(arr, left, subRight - 1);
+
+        return choosePivot(arr, left, subIndex - 1);
     }
 
-    // Обмен
-    private static void swap(int[] arr, int i, int j) {
-        int temp = arr[i];
-        arr[i] = arr[j];
-        arr[j] = temp;
+    // стандартный partition
+    private static int partition(int[] arr, int left, int right, int pivotIndex) {
+        int pivot = arr[pivotIndex];
+        swap(arr, pivotIndex, right);
+        int store = left;
+        for (int i = left; i < right; i++) {
+            if (arr[i] < pivot) {
+                swap(arr, store, i);
+                store++;
+            }
+        }
+        swap(arr, store, right);
+        return store;
     }
 
-    // Проверка
+    private static void swap(int[] arr, int a, int b) {
+        int tmp = arr[a];
+        arr[a] = arr[b];
+        arr[b] = tmp;
+    }
+
+    // проверка
     public static void main(String[] args) {
         int[] arr = {12, 3, 5, 7, 4, 19, 26};
-        int k = 3; // ищем 3-й по величине элемент
+        int k = 3;
         int result = select(arr, k);
         System.out.println(k + "-й наименьший элемент: " + result);
     }

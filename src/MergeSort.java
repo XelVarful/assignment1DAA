@@ -1,54 +1,69 @@
+import java.util.Arrays;
+
 public class MergeSort {
 
-    // Главная функция — запускаем сортировку
+    // сортировка слиянием (делим массив на части и соединяем обратно)
     public static void mergeSort(int[] arr) {
-        mergeSort(arr, 0, arr.length - 1, new int[arr.length]);
+        if (arr == null || arr.length <= 1) return;
+        mergeSort(arr, 0, arr.length - 1);
     }
 
-    // Рекурсивный алгоритм делит массив и сортирует
-    private static void mergeSort(int[] arr, int left, int right, int[] buffer) {
+    // рекурсивная часть
+    private static void mergeSort(int[] arr, int left, int right) {
+        // если только один элемент - сортировать не нужно
         if (left >= right) return;
 
-        int mid = (left + right) / 2;
+        int middle = (left + right) / 2;
 
-        // Сортируем левую и правую половину
-        mergeSort(arr, left, mid, buffer);
-        mergeSort(arr, mid + 1, right, buffer);
+        // сортируем левую часть
+        mergeSort(arr, left, middle);
+        // сортируем правую часть
+        mergeSort(arr, middle + 1, right);
 
-        // Сливаем две отсортированные части
-        merge(arr, left, mid, right, buffer);
+        // объединяем две части
+        merge(arr, left, middle, right);
     }
 
-    //  Слияние отсортированных частей
-    private static void merge(int[] arr, int left, int mid, int right, int[] buffer) {
-        int i = left;
-        int j = mid + 1;
-        int k = left;
+    // метод слияния двух отсортированных частей
+    private static void merge(int[] arr, int left, int mid, int right) {
+        int size1 = mid - left + 1;
+        int size2 = right - mid;
 
-        while (i <= mid && j <= right) {
-            if (arr[i] <= arr[j]) {
-                buffer[k++] = arr[i++];
+        // создаем временные массивы
+        int[] leftArr = new int[size1];
+        int[] rightArr = new int[size2];
+
+        for (int i = 0; i < size1; i++) {
+            leftArr[i] = arr[left + i];
+        }
+        for (int j = 0; j < size2; j++) {
+            rightArr[j] = arr[mid + 1 + j];
+        }
+
+        // слияние обратно в основной массив
+        int i = 0, j = 0, k = left;
+        while (i < size1 && j < size2) {
+            if (leftArr[i] <= rightArr[j]) {
+                arr[k++] = leftArr[i++];
             } else {
-                buffer[k++] = arr[j++];
+                arr[k++] = rightArr[j++];
             }
         }
 
-        while (i <= mid) buffer[k++] = arr[i++];
-        while (j <= right) buffer[k++] = arr[j++];
-
-        for (int p = left; p <= right; p++) {
-            arr[p] = buffer[p];
+        // добавляем оставшиеся элементы
+        while (i < size1) {
+            arr[k++] = leftArr[i++];
+        }
+        while (j < size2) {
+            arr[k++] = rightArr[j++];
         }
     }
 
-    // Проверка работы
+    // проверка работы
     public static void main(String[] args) {
-        int[] arr = {5, 2, 9, 1, 5, 6};
-        mergeSort(arr);
-
-        System.out.print("Отсортированный массив: ");
-        for (int n : arr) {
-            System.out.print(n + " ");
-        }
+        int[] nums = {38, 27, 43, 3, 9, 82, 10};
+        System.out.println("До сортировки: " + Arrays.toString(nums));
+        mergeSort(nums);
+        System.out.println("После сортировки: " + Arrays.toString(nums));
     }
 }
