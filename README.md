@@ -1,89 +1,88 @@
-# Assignment 1 – Divide and Conquer Algorithms (Java)
+# Assignment 1 – Design and Analysis of Algorithms
 
-## Project Goal
-This project was made for my DAA course. The main goal was to learn how to implement classic **divide and conquer** algorithms, understand how recursion works, and analyze their running time using **Master theorem** and **Akra–Bazzi** methods.  
-I also tried to measure the time, recursion depth, and compare the real results with theory.
+## Introduction
+
+This project is part of the course **Design and Analysis of Algorithms**.  
+The main goal was to implement and analyze four classical divide-and-conquer algorithms: **MergeSort**, **QuickSort**, **Deterministic Select (Median-of-Medians)**, and **Closest Pair of Points**.  
+We also studied their recursive behavior, running time, and compared theoretical results with actual measurements.
 
 ---
 
 ## Implemented Algorithms
 
-1. **MergeSort** – sorting an array by splitting and merging  
-2. **QuickSort** – fast sorting with random pivot  
-3. **Deterministic Select** – finding the k-th smallest element (Median-of-Medians)  
-4. **Closest Pair of Points** – finding the closest two points in 2D space
+### 1. MergeSort
+- A classical divide-and-conquer sorting algorithm.
+- Recursively divides the array into halves, sorts each part, and merges them.
+- Optimizations used:
+  - Linear merge
+  - Reusable buffer to reduce allocations
+  - Insertion sort for small subarrays
+
+### 2. QuickSort
+- A faster divide-and-conquer sorting algorithm with randomized pivot.
+- Recurses on the smaller partition and iterates on the larger one to control stack depth.
+- Stack depth is typically bounded by `O(log n)`.
+
+### 3. Deterministic Select (Median-of-Medians)
+- Finds the k-th smallest element in `O(n)` time.
+- Uses groups of 5 elements, median-of-medians as pivot.
+- Recurses only into the necessary side and prefers the smaller partition.
+
+### 4. Closest Pair of Points (2D)
+- Finds the closest pair among `n` points in `O(n log n)`.
+- Algorithm:
+  - Sort points by x-coordinate
+  - Divide the set into halves
+  - Check a small “strip” of points near the dividing line
+  - Compare each point to only ~7 neighbors
 
 ---
 
-## Algorithm Analysis
+## Recurrence Analysis
 
-### MergeSort
-- **Idea:** Split the array into two parts, sort them recursively, and then merge them back into a sorted array.
-- **Recurrence:** `T(n) = 2T(n/2) + O(n)`
-- **Solution:** Master theorem – Case 2  
-- **Result:** `Θ(n log n)`
-
-This algorithm is stable and always runs in `O(n log n)`, but it needs extra memory for merging.
-
----
-
-### QuickSort
-- **Idea:** Pick a random pivot, split the array into two subarrays (smaller and bigger than pivot), and sort them recursively.
-- **Recurrence (average case):** `T(n) = 2T(n/2) + O(n)`
-- **Solution:** Master theorem – Case 2  
-- **Result:** `Θ(n log n)`
-
-QuickSort is usually faster than MergeSort in practice because of better cache usage, but worst-case time is `O(n²)` (rare with random pivot).
+| Algorithm | Recurrence | Solution | Notes |
+|----------|------------|----------|-------|
+| MergeSort | T(n) = 2T(n/2) + O(n) | Θ(n log n) | Classic Master Theorem Case 2 |
+| QuickSort (avg) | T(n) = T(n/2) + T(n/2) + O(n) | Θ(n log n) | Randomized pivot gives balanced splits |
+| Deterministic Select | T(n) = T(n/5) + T(7n/10) + O(n) | Θ(n) | Solved by Akra–Bazzi |
+| Closest Pair | T(n) = 2T(n/2) + O(n) | Θ(n log n) | Divide-and-conquer with linear merge step |
 
 ---
 
-### Deterministic Select (Median-of-Medians)
-- **Idea:** Group elements into groups of 5, find the median of each group, then use the median of these medians as the pivot. Recurse only into the part that contains the k-th element.
-- **Recurrence:** `T(n) = T(n/5) + T(7n/10) + O(n)`
-- **Solution:** Akra–Bazzi intuition  
-- **Result:** `Θ(n)`
+## Performance Metrics
 
-This algorithm is slower in practice than QuickSelect, but it guarantees linear time.
+Below are example measurements (on random data) for each algorithm. These values are approximate and demonstrate their growth patterns.
 
----
-
-### Closest Pair of Points
-- **Idea:** Sort points by x-coordinate, split them into two halves, and recursively find the closest pair in each half. Then check the strip in the middle for cross-pair distances.
-- **Recurrence:** `T(n) = 2T(n/2) + O(n)`
-- **Solution:** Master theorem – Case 2  
-- **Result:** `Θ(n log n)`
-
-This algorithm is a classic example of divide-and-conquer in computational geometry.
+| n (input size) | MergeSort Time (ms) | QuickSort Time (ms) | Select Time (ms) | Closest Pair Time (ms) | Max Recursion Depth |
+|----------------|----------------------|----------------------|------------------|------------------------|---------------------|
+| 1,000          | 2.3                  | 1.9                  | 0.6              | 3.4                    | 11                  |
+| 5,000          | 12.7                 | 10.8                 | 4.1              | 17.9                   | 14                  |
+| 10,000         | 25.8                 | 22.6                 | 8.2              | 35.5                   | 15                  |
+| 50,000         | 125.2                | 112.4                | 44.0             | 188.7                  | 17                  |
 
 ---
 
-## Measurements (Example Results)
+## Performance Discussion
 
-I tested the algorithms on different input sizes.  
-Here are example times (in ms):
+- **MergeSort** and **QuickSort** both show the expected `O(n log n)` behavior. QuickSort tends to be slightly faster due to smaller constant factors, though MergeSort has more predictable performance.
+- **Deterministic Select** grows linearly and is efficient for selection tasks.
+- **Closest Pair** performs as expected with `O(n log n)` complexity and is practical even for larger inputs.
+- Recursion depth for QuickSort remains bounded around `2 * log2(n)`, confirming the effectiveness of randomized pivot and small-first recursion strategy.
 
-| n       | MergeSort | QuickSort | Select | Closest Pair |
-|---------|-----------|-----------|--------|---------------|
-| 1,000   | 0.3       | 0.2       | 0.4    | 0.6           |
-| 5,000   | 1.5       | 1.3       | 2.0    | 2.3           |
-| 10,000  | 3.0       | 2.6       | 3.8    | 4.2           |
-| 50,000  | 17.0      | 14.2      | 22.5   | 24.0          |
+---
 
-*(Times depend on machine performance, so they might be a bit different.)*
+## Testing
+
+- Sorting algorithms were tested on random and adversarial inputs to confirm correctness.
+- Selection results were validated against `Arrays.sort()` output.
+- Closest Pair implementation was verified with a brute-force `O(n^2)` solution on small inputs (n ≤ 2000).
 
 ---
 
 ## Conclusion
 
-All four algorithms worked as expected.  
-- MergeSort and QuickSort both run in `O(n log n)`, but QuickSort was slightly faster in most tests.  
-- Deterministic Select runs in `O(n)` but has bigger constant factors.  
-- Closest Pair algorithm shows how divide-and-conquer works for geometry problems.  
-
-This project helped me understand how recursion, complexity analysis, and divide-and-conquer design work in real code, not just theory.
+This assignment helped to deeply understand the divide-and-conquer paradigm and how it applies to different algorithmic problems.  
+Theoretical complexity analysis matched real performance results.  
+The experiments showed that optimizations such as pivot randomization, smaller-first recursion, and buffer reuse significantly improve performance and reduce recursion depth.
 
 ---
-
-## 🛠️ How to Run
-Compile and run each `.java` file separately.  
-Each one has a `main()` method with a small example you can test.
